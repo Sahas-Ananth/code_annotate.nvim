@@ -1,4 +1,7 @@
 # code_annotate.nvim for Neovim
+
+https://github.com/user-attachments/assets/b1666786-a807-4c35-abd1-fc15b8c3d47e
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
