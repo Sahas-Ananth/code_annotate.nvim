@@ -1,0 +1,241 @@
+						Last Modified: October 23 2024
+
+							  *code_annotate.nvim*
+			   Code Annotate for Neovim ~
+==============================================================================
+					*code_annotate.nvim-table-of-contents*
+			     Table Of Contents ~
+1. Introduction				     |code_annotate.nvim-introduction|
+  1.1. Features					 |code_annotate.nvim-features|
+2. Installation				     |code_annotate.nvim-installation|
+  2.1. Requirements			     |code_annotate.nvim-requirements|
+  2.2. Setup					    |code_annotate.nvim-setup|
+  2.3. Configuration			    |code_annotate.nvim-configuration|
+3. Useage					   |code_annotate.nvim-useage|
+  3.1. Create Annotation		|code_annotate.nvim-create-annotation|
+  3.2. Delete Annotation		|code_annotate.nvim-delete-annotation|
+  3.3. Preview Annotation	       |code_annotate.nvim-preview-annotation|
+  3.4. Telescope Annotation			|code_annotate.nvim-telescope|
+  3.5. Key Mappings			     |code_annotate.nvim-key-mappings|
+4. Credits					  |code_annotate.nvim-credits|
+  4.1. Inspiration
+  4.2. Special Thanks
+  4.3. Links
+
+==============================================================================
+1. Introduction				     *code_annotate.nvim-introduction*
+
+|code_annotate.nvim| allows you to write rich-formatted notes using Markdown
+without cluttering your code with comments. It uses Neovim's extmarks and an
+SQLite database to track your notes. This keeps your code clean and organized
+while still providing a way to document thoughts, ideas, or reminders exactly
+where they belong.
+
+1.1. Features				       *code_annotate.nvim-features* ~
+
+- Markdown support: Write rich-formatted notes using Markdown for enhanced
+  readability and structure.
+- Permanent storage: Stores notes using an SQLite database, ensuring they
+  persist between sessions.
+- Telescope support: Native Integration with |telescope.nvim|, allowing quick
+  preview of all annotations in the current buffer and the ability to jump to
+  them.
+
+==============================================================================
+2. Installation				     *code_annotate.nvim-installation*
+
+2.1. Requirements			   *code_annotate.nvim-requirements* ~
+
+Required:
+ - sqlite.lua (https://github.com/kkharji/sqlite.lua)
+
+Optional yet highly recomended:
+ - telescope.nvim (https://github.com/nvim-telescope/telescope.nvim)
+ - plenary.nvim (https://github.com/nvim-lua/plenary.nvim)
+
+
+2.2. Setup					  *code_annotate.nvim-setup* ~
+
+Lazy.nvim ~
+>lua
+    {
+      "Sahas-Ananth/code_annotate.nvim",
+      -- To set all the previous annotations when entering a buffer.
+      lazy = false,
+      dependencies = { 
+        "kkharji/sqlite.lua",
+        "nvim-telescope/telescope.nvim",
+	"nvim-lua/plenary.nvim"
+      },
+      opts = {
+	-- Your configuration comes here or leave it empty to use the default
+	-- settings refer to the configuration section below
+      }
+    }
+<
+
+2.3. Configuration			  *code_annotate.nvim-configuration* ~
+
+These are the following defaults:
+>lua
+  {
+    -- Sign Icon used for sign coloumn.
+    annot_sign = '',
+    -- Highlight Group for setting sign color.
+    annot_sign_hl = 'DiagnosticOk',
+    -- Do not ask for confirmation before deleting a note.
+    auto_confirm_delete = false,
+    -- Path to the database file. It is created if does not exists.
+    db_path = vim.fn.stdpath 'data' .. '/code_annotate.db',
+    -- Height of the floating annotation window.
+    height = 10,
+    -- Width of the floating annotation window.
+    width = 35,
+  }
+<
+
+==============================================================================
+3. Useage					   *code_annotate.nvim-useage*
+
+3.1. Create Annotation		      *code_annotate.nvim-create-annotation* ~
+
+Use this vim command to create or edit an annotation:
+>vim
+  :NoteCreate
+<
+or in Lua,
+>lua
+  require("code_annotate").create_annotation()
+<
+If you want to close the preview window you can by pressing `q` or `:close`.
+If a note is empty (filled with only whitespace characters) it is not saved
+else it is save automatically.
+
+3.2. Delete Annotation		      *code_annotate.nvim-delete-annotation* ~
+
+Use this vim command to delete the annotation in the current line:
+>vim
+  :NoteDelete
+<
+or in Lua,
+>lua
+  require("code_annotate").delete_annotation()
+<
+If you have set the `auto_confirm_delete` to `true` in
+|code_annotate.nvim-configuration| then it will not ask for confirmation while
+deleting the note. Otherwise you have to confirm by hitting `1` to confirm or
+`2` (default) to cancel the deletion.
+
+3.3. Preview Annotation		     *code_annotate.nvim-preview-annotation* ~
+
+Use this vim command to preview the annotation in the current line:
+>vim
+  :NoteView
+<
+or in Lua,
+>lua
+  require("code_annotate").preview_annotation()
+<
+If you want to close the preview window you can by pressing `q` or `:close`.
+The preview is not modifiable. If you want to modify the note use the
+|code_annotate.nvim-create-annotation| command.
+
+3.4. Telescope Annotation		      *code_annotate.nvim-telescope* ~
+
+Use this command to see all the annotations in the current buffer and jump to
+the selected one:
+>vim
+  :NoteTelescope
+<
+this is the same as running:
+>vim
+  :Telescope code_annotate current
+<
+3.5. Key Mappings			   *code_annotate.nvim-key-mappings* ~
+
+The plugin does not come with any keymaps. But if you use |lazy.nvim| you can
+use in the setup of the plugin:
+>lua
+  keys = {
+        {
+            '<leader>nc',
+            '<cmd>NoteCreate<cr>',
+            desc = '[n]ote [c]reate',
+        },
+        {
+            '<leader>nd',
+            '<cmd>NoteDelete<cr>',
+            desc = '[n]ote [d]elete',
+        },
+        {
+            '<leader>nv',
+            '<cmd>NoteView<cr>',
+            desc = '[n]ote [p]review',
+        },
+        {
+            '<leader>sn',
+            '<cmd>NoteTelescope<cr>',
+            desc = '[s]earch [n]ote',
+        },
+    },
+<
+or create keymaps with:
+>lua
+  vim.keymap.set('n', '<leader>nc', '<cmd>NoteCreate<cr>', {
+    desc = '[n]ote [c]reate'
+  })
+  vim.keymap.set('n', '<leader>nd', '<cmd>NoteDelete<cr>', {
+    desc = '[n]ote [d]elete'
+  })
+  vim.keymap.set('n', '<leader>nv', '<cmd>NoteView<cr>', {
+    desc = '[n]ote [v]iew'
+  })
+  vim.keymap.set('n', '<leader>sn', '<cmd>NoteTelescope<cr>', {
+    desc = '[s]earch [n]ote'
+  })
+<
+
+==============================================================================
+4. Credits					  *code_annotate.nvim-credits*
+
+Inspiration ~
+
+I had been searching for a plugin like this for a while. In one of Primeagen’s
+VoDs, he built something similar just because he wanted to. Watching that, I
+thought, “If he can do it, so can I!” and decided to create this plugin. It’s
+my first plugin, so I’m open to feedback and suggestions for improvement.
+
+Halfway through the project, I discovered Andrew's (winter-again) plugin,
+which inspired me to incorporate some of his approaches. Since I was already
+deep into development, I wanted to see my version through to completion,
+adding a few extra features that I thought were missing from his project.
+
+Special Thanks ~
+
+A huge thanks to TJ Devries for the fantastic plugin development videos. I
+used them extensively as a reference for this project, especially the ones on
+creating a Neovim plugin. Also, thanks for always reminding us to “RTFM”—that
+advice has been invaluable. Special thanks as well for creating
+kickstart.nvim, which I used to set up my Neovim configuration. And of course,
+thank you for maintaining such an amazing code editor.
+
+Thank you to Primeagen for introducing me to Neovim a year ago (2023) and,
+jokingly, for influencing my personality! When I started using Neovim, I never
+imagined I’d end up creating my own plugin, let alone learning so much about
+my editor.
+
+Finally, thanks to Folke. While working on this project, I studied your plugin
+code and borrowed a few feature ideas, such as jumping to notes (coming
+soon™).
+
+
+Links ~
+
+Here are some links for people in the credit section:
+ - Annotation Project: https://github.com/winter-again/annotate.nvim
+ - Winter-again: https://github.com/winter-again
+ - TJ Devris: https://github.com/tjdevries
+ - Primeagen: https://github.com/theprimeagen
+ - Folke: https://github.com/folke
+
+vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
